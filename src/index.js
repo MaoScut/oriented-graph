@@ -2,15 +2,15 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const canvasWidth = 500;
 const canvasHeight = 800;
-// {
-//   x:,
-//   y:,
+
+// 画节点函数，目前仅支持圆
+// node = {
+//   x,
+//   y,
 //   r,
 //   color,
 //   text,
 // }
-
-// 画节点函数，目前仅支持圆
 function drawNode(node) {
   ctx.beginPath();
   ctx.arc(node.x, node.y, node.r, 0, 2 * Math.PI),
@@ -175,32 +175,3 @@ edgeInfo.forEach(arr => {
   const color = colors[arr[3] - 1];
   link(nodeArr[index1], nodeArr[index2],[],color);
 })
-// const node1 = {
-//   x: 50,
-//   y: 50,
-//   r: 20,
-//   text: '1',
-// };
-// const node2 = {
-//   x: 100,
-//   y: 100,
-//   r: 20,
-//   text: '2',
-// };
-// const node3 = {
-//   x: 300,
-//   y: 0,
-//   r: 20,
-//   text: '3',
-// }
-
-// drawNode(node1);
-// drawNode(node2);
-// drawNode(node3);
-
-// link(node1, node2, [{x:50,y:10}, {x:100, y: 10}], 'red');
-// // link(node1, node2, [],0,2,'red');
-// link(node2, node3, [], 'blue');
-
-// drawArrowLine({x:200,y:0}, {x:0, y: 200});
-
