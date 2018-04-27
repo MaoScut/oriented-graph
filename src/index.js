@@ -9,6 +9,8 @@ const canvasHeight = 800;
 //   color,
 //   text,
 // }
+
+// 画节点函数，目前仅支持圆
 function drawNode(node) {
   ctx.beginPath();
   ctx.arc(node.x, node.y, node.r, 0, 2 * Math.PI),
@@ -21,6 +23,7 @@ function drawNode(node) {
   ctx.strokeText(node.text, node.x - fontSize/4, node.y + fontSize/4);
 }
 
+// 用折线连接两个节点
 function link(startNode, endNode, corner, color) {
   ctx.strokeStyle = color;
   ctx.beginPath();
@@ -51,9 +54,9 @@ function link(startNode, endNode, corner, color) {
     y: arr[arr.length - 2].y - arr[arr.length-1].y,
   };
   console.log(vectorE);
-  const xiebianE = Math.sqrt(vectorE.x * vectorE.x + vectorE.y * vectorE.y);
-  const cosE = vectorE.x / xiebianE;
-  const sinE = vectorE.y / xiebianE;
+  const hypotenuse = Math.sqrt(vectorE.x * vectorE.x + vectorE.y * vectorE.y);
+  const cosE = vectorE.x / hypotenuse;
+  const sinE = vectorE.y / hypotenuse;
   arr[arr.length - 1] = {
     x: endPoint.x + endNode.r * cosE,
     y: endPoint.y + endNode.r * sinE,
@@ -72,15 +75,17 @@ function link(startNode, endNode, corner, color) {
   }
   ctx.closePath();
 }
+
+// 画带有箭头的直线
 function drawArrowLine(startPoint, endPoint) {
   const arrowRadius = 5;
   const vector = {
     x: endPoint.x - startPoint.x,
     y: endPoint.y - startPoint.y,
   };
-  const xiebian = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
-  const cos = vector.x / xiebian;
-  const sin = vector.y / xiebian;
+  const hypotenuse = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+  const cos = vector.x / hypotenuse;
+  const sin = vector.y / hypotenuse;
   let arrowEndPoint1 = {
     x: endPoint.x - (Math.sin(Math.PI/4)*cos -Math.cos(Math.PI/4)*sin)*arrowRadius,
     y: endPoint.y - (Math.cos(Math.PI/4)*cos + Math.sin(Math.PI/4)*sin)*arrowRadius,
@@ -104,6 +109,7 @@ function drawArrowLine(startPoint, endPoint) {
   ctx.lineTo(arrowEndPoint2.x, arrowEndPoint2.y)
   ctx.stroke();
 }
+
 const simpleInfo = [
   [20, 220],
   [20, 120],
