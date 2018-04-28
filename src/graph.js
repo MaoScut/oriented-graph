@@ -1,34 +1,47 @@
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const canvasWidth = 500;
-const canvasHeight = 800;
-import './main.scss';
-
-
-// 大小统一用宽度作为比例尺，100表示画布宽度，0表示0宽
-
-// 画节点函数，目前仅支持圆
-// node = {
-//   x,
-//   y,
-//   r,
-//   color,
-//   text,
-// }
-function drawNode(node) {
+function Graph(width, height, canvas, colorMap) {
+  this.width = width;
+  this.height = height;
+  this.canvas = canvas;
+  this.ctx = canvas.getContext('2d');
+  this.nodes = [];
+  this.edges = [];
+  this.colorMap = colorMap;
+}
+Graph.prototype.addNode = function (node) {
+  this.nodes.push({
+    text: node.text,
+    x: (node.x / 100 ) * this.width,
+    y: (node.y / 100 ) * this.width,
+    // 将百分比半径转化为真实px半径
+    r: (node.r / 100 ) * this.width,
+  })
+}
+Graph.prototype.addEdge = function (edge) {
+  this.edges.push(edge);
+}
+function drawNode(node, ctx) {
   ctx.beginPath();
   ctx.arc(node.x, node.y, node.r, 0, 2 * Math.PI),
   // ctx.fillStyle = 'blue';
   // ctx.fill();
   ctx.stroke();
   ctx.closePath();
-  const fontSize = node.r / 2;
-  ctx.font = fontSize + 'px';
-  ctx.strokeText(node.text, node.x - fontSize/4, node.y + fontSize/4);
+  const fontSize = node.r;
+  ctx.font = node.r + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.strokeText(node.text, node.x, node.y);
 }
-
-// 用折线连接两个节点
-function link(startNode, endNode, corner, color) {
+Graph.prototype.drawNode = function () {
+  const ctx = this.ctx;
+  this.nodes.forEach(node => drawNode(node,ctx));
+}
+Graph.prototype.drawEdge = function () {
+  const ctx = this.ctx;
+  const nodeArr = this.nodes;
+  this.edges.forEach(edge => link(ctx, nodeArr[edge.from - 1], nodeArr[edge.to - 1], edge.color))
+}
+function link(ctx,startNode, endNode, color) {
   ctx.strokeStyle = color;
   ctx.beginPath();
   const startPoint = {
@@ -39,7 +52,7 @@ function link(startNode, endNode, corner, color) {
     x: endNode.x,
     y: endNode.y,
   };
-  const arr = [startPoint, ...corner, endPoint];
+  const arr = [startPoint, endPoint];
   // 起点半径内不画线
   const vectorS = {
     x: arr[1].x - arr[0].x,
@@ -67,21 +80,11 @@ function link(startNode, endNode, corner, color) {
   };
   // 终
   console.log(endPoint);
-  for (let i = 0; i < arr.length - 1; i++) {
-    if (i == arr.length - 2) {
-      drawArrowLine(arr[i], arr[i+1]);
-    }
-    else {
-      ctx.moveTo(arr[i].x, arr[i].y);
-      ctx.lineTo(arr[i + 1].x, arr[i + 1].y);
-      ctx.stroke();
-    }
-  }
+  drawArrowLine(ctx,arr[0], arr[1]);
   ctx.closePath();
 }
-
 // 画带有箭头的直线
-function drawArrowLine(startPoint, endPoint) {
+function drawArrowLine(ctx,startPoint, endPoint) {
   const arrowRadius = 5;
   const vector = {
     x: endPoint.x - startPoint.x,
@@ -113,31 +116,30 @@ function drawArrowLine(startPoint, endPoint) {
   ctx.lineTo(arrowEndPoint2.x, arrowEndPoint2.y)
   ctx.stroke();
 }
-
+// test
 const simpleInfo = [
-  [20, 220],
-  [20, 120],
-  [20, 20],
-  [120, 220],
-  [120, 120],
-  [120, 20],
-  [220, 220],
-  [220, 120],
-  [220, 20],
-  [320, 220],
-  [320, 120],
-  [320, 20],
-  [420, 220],
-  [420, 120],
-  [420, 20],
+  [10, 55],
+  [10, 35],
+  [10, 15],
+  [30, 55],
+  [30, 35],
+  [30, 15],
+  [50, 55],
+  [50, 35],
+  [50, 15],
+  [70, 55],
+  [70, 35],
+  [70, 15],
+  [90, 55],
+  [90, 35],
+  [90, 15],
 ]
 const nodeArr = simpleInfo.map((arr, index) =>({
-  x: arr[0] + 100,
-  y: arr[1] + 100,
-  r: 20,
+  x: arr[0],
+  y: arr[1],
+  r: 5,
   text: index + 1 + '',
 }));
-nodeArr.forEach(node => drawNode(node));
 const edgeInfo = [
   [1,2,6,1],
   [2,1,6,1],
@@ -165,18 +167,18 @@ const edgeInfo = [
   [7,10,6,4],
   [10,13,5,4],
 ];
-const colors = [
-  'pink',
-  'blue',
-  'red',
-  'black',
-  'green',
-  'yellow',
-];
-edgeInfo.forEach(arr => {
-  const index1 = arr[0] - 1;
-  const index2 = arr[1] - 1;
-  const color = colors[arr[3] - 1];
-  link(nodeArr[index1], nodeArr[index2],[],color);
-})
+const colorMap = ['blue', 'green', 'red', 'purple', 'DarkGoldenrod', 'SaddleBrown']
 
+const edgeArr = edgeInfo.map(arr => ({
+  from: arr[0],
+  to: arr[1],
+  weight: arr[2],
+  color: colorMap[arr[3] - 1],
+}));
+
+const g = new Graph(720, 500, document.getElementById('canvas'), colorMap);
+nodeArr.forEach(node => g.addNode(node));
+edgeArr.forEach(edge => g.addEdge(edge));
+console.log(g.nodes);
+g.drawNode();
+g.drawEdge();

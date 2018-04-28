@@ -6,7 +6,7 @@ const BUILD_PATH = path.resolve(ROOT_PATH, 'build');
 
 module.exports = {
   entry: [
-    './src/index.js',
+    './src/graph.js',
   ],
   output: {
     path: BUILD_PATH,
