@@ -1,3 +1,11 @@
+/**
+ * 创建一个有向图对象
+ * 
+ * @param {number} width 画布的宽度
+ * @param {number} height 画布的高度
+ * @param {dom} canvas 画布文档节点
+ * @param {Array} colorMap 将数字映射为颜色
+ */
 function Graph(width, height, canvas, colorMap) {
   this.width = width;
   this.height = height;
@@ -7,23 +15,48 @@ function Graph(width, height, canvas, colorMap) {
   this.edges = [];
   this.colorMap = colorMap;
 }
-Graph.prototype.addNode = function (node) {
-  this.nodes.push({
-    text: node.text,
-    x: (node.x / 100 ) * this.width,
-    y: (node.y / 100 ) * this.width,
+/**
+ * 根据参数生成node
+ * 
+ * @param {any} x 节点与画布左上顶点的横向距离=x%*画布宽度
+ * @param {any} y 节点与画布左上顶点的纵向距离=y%*画布宽度
+ * @param {any} r 节点的半径
+ * @param {any} text 节点中的文字
+ */
+Graph.prototype.createNode = function (x, y, r, text) {
+  return {
+    text: text,
+    x: (x / 100 ) * this.width,
+    y: (y / 100 ) * this.width,
     // 将百分比半径转化为真实px半径
-    r: (node.r / 100 ) * this.width,
-  })
+    r: (r / 100 ) * this.width,
+  }
 }
+/**
+ * 将节点加入到实例对象的nodes数组中
+ * 
+ * @param {any} node 包含节点坐标，半径，文字
+ */
+Graph.prototype.addNode = function (node) {
+  this.nodes.push(node)
+}
+/**
+ * 将边加入到实例对象中的edges数组中
+ * 
+ * @param {any} edge 包含起点，终点，权重，颜色
+ */
 Graph.prototype.addEdge = function (edge) {
   this.edges.push(edge);
 }
+/**
+ * 在画布中画出一个节点
+ * 
+ * @param {any} node 节点对象
+ * @param {any} ctx 目标画布的context对象
+ */
 function drawNode(node, ctx) {
   ctx.beginPath();
   ctx.arc(node.x, node.y, node.r, 0, 2 * Math.PI),
-  // ctx.fillStyle = 'blue';
-  // ctx.fill();
   ctx.stroke();
   ctx.closePath();
   const fontSize = node.r;
@@ -32,15 +65,31 @@ function drawNode(node, ctx) {
   ctx.textBaseline = 'middle';
   ctx.strokeText(node.text, node.x, node.y);
 }
+/**
+ * 画出所有节点
+ * 
+ */
 Graph.prototype.drawNode = function () {
   const ctx = this.ctx;
   this.nodes.forEach(node => drawNode(node,ctx));
 }
+/**
+ * 画出所有边
+ * 
+ */
 Graph.prototype.drawEdge = function () {
   const ctx = this.ctx;
   const nodeArr = this.nodes;
   this.edges.forEach(edge => link(ctx, nodeArr[edge.from - 1], nodeArr[edge.to - 1], edge.color))
 }
+/**
+ * 用带箭头的指定颜色的线连接两个节点
+ * 
+ * @param {any} ctx 
+ * @param {any} startNode 
+ * @param {any} endNode 
+ * @param {any} color 
+ */
 function link(ctx,startNode, endNode, color) {
   ctx.strokeStyle = color;
   ctx.beginPath();
@@ -83,7 +132,13 @@ function link(ctx,startNode, endNode, color) {
   drawArrowLine(ctx,arr[0], arr[1]);
   ctx.closePath();
 }
-// 画带有箭头的直线
+/**
+ * 根据起始点和末尾点画出箭头
+ * 
+ * @param {any} ctx 
+ * @param {any} startPoint 
+ * @param {any} endPoint 
+ */
 function drawArrowLine(ctx,startPoint, endPoint) {
   const arrowRadius = 5;
   const vector = {
@@ -116,6 +171,8 @@ function drawArrowLine(ctx,startPoint, endPoint) {
   ctx.lineTo(arrowEndPoint2.x, arrowEndPoint2.y)
   ctx.stroke();
 }
+
+
 // test
 const simpleInfo = [
   [10, 55],
@@ -177,7 +234,8 @@ const edgeArr = edgeInfo.map(arr => ({
 }));
 
 const g = new Graph(720, 500, document.getElementById('canvas'), colorMap);
-nodeArr.forEach(node => g.addNode(node));
+// nodeArr.forEach(node => g.addNode(node.x));
+simpleInfo.forEach((arr, index) => g.addNode(g.createNode(arr[0], arr[1], 5, index + 1 + '')));
 edgeArr.forEach(edge => g.addEdge(edge));
 console.log(g.nodes);
 g.drawNode();
